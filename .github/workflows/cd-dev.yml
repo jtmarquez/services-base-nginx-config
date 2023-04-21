@@ -40,7 +40,7 @@ jobs:
       -
         name: Build docker image
         run: |
-          docker build -t ${{ env.SERVICES_CONFIG_NAME }}
+          docker build . -t ${{ env.SERVICES_CONFIG_NAME }}
           docker tag ${{ env.SERVICES_CONFIG_NAME }} ${{ env.REGISTRY_NAME }}:${{ env.REPOSITORY_TAG }}
       -
         name: Push image
