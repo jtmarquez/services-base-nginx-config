@@ -13,7 +13,6 @@ jobs:
       BASE_REPOSITORY_NAME: ghcr.io
       REPOSITORY_USERNAME: jtmarquez
       REPOSITORY_TAG: latest
-      REPOSITORY_NAME_PREFIX: /services.
       SERVICE_NAME_CONFIG_PATH: config/service-name.config
       DOCKER_RUN_CONFIG_PATH: config/docker-run-options.config
       NGINX_CONFIG_NAME: base-nginx-config
@@ -26,7 +25,7 @@ jobs:
         run: |
           SERVICES_CONFIG_NAME=${{ env.NGINX_CONFIG_NAME }}-${{ env.STAGE }}
           REPOSITORY=${{ env.BASE_REPOSITORY_NAME }}/${{ env.REPOSITORY_USERNAME }}
-          REGISTRY_NAME=${REPOSITORY}.${SERVICES_CONFIG_NAME}
+          REGISTRY_NAME=${REPOSITORY}/${SERVICES_CONFIG_NAME}
 
           echo "SERVICES_CONFIG_NAME=${SERVICES_CONFIG_NAME}" >> $GITHUB_ENV
           echo "REGISTRY_NAME=${REGISTRY_NAME}" >> $GITHUB_ENV
