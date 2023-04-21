@@ -16,7 +16,6 @@ jobs:
       SERVICE_NAME_CONFIG_PATH: config/service-name.config
       DOCKER_RUN_CONFIG_PATH: config/docker-run-options.config
       NGINX_CONFIG_NAME: base-nginx-config
-      DOCKER_RUN_CONFIG_PATH: config/docker-run-options.config
     steps:
       -
         name: Checkout
