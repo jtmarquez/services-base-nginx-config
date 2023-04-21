@@ -16,6 +16,7 @@ jobs:
       SERVICE_NAME_CONFIG_PATH: config/service-name.config
       DOCKER_RUN_CONFIG_PATH: config/docker-run-options.config
       NGINX_CONFIG_NAME: base-nginx-config
+      DOCKER_RUN_CONFIG_PATH: config/docker-run-options.config
     steps:
       -
         name: Checkout
@@ -23,12 +24,14 @@ jobs:
       -
         name: Load service name and running options
         run: |
+          DOCKER_RUN_OPTIONS=$([ -f ${{ env.DOCKER_RUN_CONFIG_PATH }} ] && cat ${{ env.DOCKER_RUN_CONFIG_PATH }})
           SERVICES_CONFIG_NAME=${{ env.NGINX_CONFIG_NAME }}-${{ env.STAGE }}
           REPOSITORY=${{ env.BASE_REPOSITORY_NAME }}/${{ env.REPOSITORY_USERNAME }}
           REGISTRY_NAME=${REPOSITORY}/${SERVICES_CONFIG_NAME}
 
           echo "SERVICES_CONFIG_NAME=${SERVICES_CONFIG_NAME}" >> $GITHUB_ENV
           echo "REGISTRY_NAME=${REGISTRY_NAME}" >> $GITHUB_ENV
+          echo "DOCKER_RUN_OPTIONS=${DOCKER_RUN_OPTIONS}" >> $GITHUB_ENV
       -
         name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -59,4 +62,4 @@ jobs:
             fi
             echo ${{ secrets.TOKEN_GITHUB }} | docker login ${{ env.BASE_REPOSITORY_NAME }} --username "${{ env.REPOSITORY_USERNAME }}" --password-stdin
             docker pull ${{ env.REGISTRY_NAME}}
-            docker run -d --name ${{ env.NGINX_CONFIG_NAME }} ${{ env.REGISTRY_NAME}} 
+            docker run -d ${{ env.DOCKER_RUN_OPTIONS }} --name ${{ env.NGINX_CONFIG_NAME }} ${{ env.REGISTRY_NAME}} 
