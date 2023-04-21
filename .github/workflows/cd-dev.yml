@@ -1,0 +1,63 @@
+name: ci dev
+
+on:
+  push:
+    branches:
+      - 'dev'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      STAGE: dev
+      BASE_REPOSITORY_NAME: ghcr.io
+      REPOSITORY_USERNAME: jtmarquez
+      REPOSITORY_TAG: latest
+      REPOSITORY_NAME_PREFIX: /services.
+      SERVICE_NAME_CONFIG_PATH: config/service-name.config
+      DOCKER_RUN_CONFIG_PATH: config/docker-run-options.config
+      NGINX_CONFIG_NAME: base-nginx-config
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Load service name and running options
+        run: |
+          SERVICES_CONFIG_NAME=${{ env.NGINX_CONFIG_NAME }}-${{ env.STAGE }}
+          REPOSITORY=${{ env.BASE_REPOSITORY_NAME }}/${{ env.REPOSITORY_USERNAME }}
+          REGISTRY_NAME=${REPOSITORY}.${SERVICES_CONFIG_NAME}
+
+          echo "SERVICES_CONFIG_NAME=${SERVICES_CONFIG_NAME}" >> $GITHUB_ENV
+          echo "REGISTRY_NAME=${REGISTRY_NAME}" >> $GITHUB_ENV
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.TOKEN_GITHUB }}
+      -
+        name: Build docker image
+        run: |
+          docker build src -t ${{ env.SERVICES_CONFIG_NAME }}
+          docker tag ${{ env.SERVICES_CONFIG_NAME }} ${{ env.REGISTRY_NAME }}:${{ env.REPOSITORY_TAG }}
+      -
+        name: Push image
+        run: docker push ${{ env.REGISTRY_NAME }}:${{ env.REPOSITORY_TAG }}
+      -
+        name: Execute startup commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOSTNAME }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            EXISTS="$(docker ps --all --quiet --filter=name=^/${{ env.NGINX_CONFIG_NAME }}$)"
+            if [ -n "$EXISTS" ]; then
+              echo "Found existing container, removing it..."
+              docker stop ${{ env.NGINX_CONFIG_NAME }} && docker rm ${{ env.NGINX_CONFIG_NAME }} && docker rmi ${{ env.NGINX_CONFIG_NAME }}
+            fi
+            echo ${{ secrets.TOKEN_GITHUB }} | docker login ${{ env.BASE_REPOSITORY_NAME }} --username "${{ env.REPOSITORY_USERNAME }}" --password-stdin
+            docker pull ${{ env.REGISTRY_NAME}}
+            docker run -d --name ${{ env.NGINX_CONFIG_NAME }} ${{ env.REGISTRY_NAME}} 
