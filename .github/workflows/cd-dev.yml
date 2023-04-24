@@ -33,6 +33,9 @@ jobs:
             export CUSTOM_DOMAIN_NAME=${{ vars.CUSTOM_DOMAIN_NAME }}
             export LOCATION_PORT=${{ vars.LOCATION_PORT }}
             export PROTOCOL=${{ vars.PROTOCOL }}
+            echo "$CUSTOM_DOMAIN_NAME"
+            echo "$LOCATION_PORT"
+            echo "$PROTOCOL"
             cd nginx
             docker-compose down
             docker-compose build
