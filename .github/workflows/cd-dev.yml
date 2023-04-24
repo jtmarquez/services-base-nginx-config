@@ -31,7 +31,8 @@ jobs:
           key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
             export CUSTOM_DOMAIN_NAME=${{ vars.CUSTOM_DOMAIN_NAME }}
-            mkdir -p nginx/servers nginx/certificates nginx/variables
+            export LOCATION_PORT=${{ vars.LOCATION_PORT }}
+            export PROTOCOL=${{ vars.PROTOCOL }}
             cd nginx
             docker-compose down
             docker-compose build

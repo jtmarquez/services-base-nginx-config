@@ -1,0 +1,3 @@
+map $host $default_server_name {
+  default "services-test.dev";
+}
