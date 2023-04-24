@@ -1,12 +1,17 @@
 version: '3'
-
+name: base-services-config
 services:
-  nginx:
-    build: .
+  nginx-server:
+    image: nginx:latest
     ports:
       - "4000:4000"
     network_mode: bridge
     volumes:
-      - ./nginx/template-variables:/etc/nginx/templates/10-variables.conf.template:ro
+      - type: bind
+        source: ./nginx/variables/
+        target: /etc/nginx/templates/
+      - type: bind
+        source: ./nginx/servers
+        target: /etc/nginx/conf.d/
     environment:
       CUSTOM_DOMAIN_NAME: ${CUSTOM_DOMAIN_NAME}
