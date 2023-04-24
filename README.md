@@ -27,7 +27,9 @@ Este repositorio contiene la configuración base del servidor de nginx para los 
     Por último, el contenido del archivo id_rsa o equivalente generado, debe ser guardado en el secreto de repositorio AWS_EC2_PRIVATE_KEY*
     
     En relación a las variables de repositorio/ambiente, se debe crear las siguientes variables opcionalmente:
-    - CUSTOM_DOMAIN_NAME: A ser utilizado en nginx.
+    - CUSTOM_DOMAIN_NAME: Dominio a ser utilizado en la configuración de nginx
+    - LOCATION_PORT: Puerto de ejemplo a ser utilizado en el proxy_pass de nginx en la única location disponible
+    - PROTOCOL: Protocolo a ser utilizado (ej: http, https).
     
     Notar que tanto los secretos como variables pueden ser adaptados a ambientes de ser necesario a través de github.
 
