@@ -4,7 +4,7 @@ services:
   nginx-server:
     image: nginx:latest
     ports:
-      - "4000:4000"
+      - "${PORT}:${PORT}"
     network_mode: bridge
     volumes:
       - type: bind
@@ -15,3 +15,5 @@ services:
         target: /etc/nginx/conf.d/
     environment:
       CUSTOM_DOMAIN_NAME: ${CUSTOM_DOMAIN_NAME}
+      LOCATION_PORT: ${LOCATION_PORT}
+      PROTOCOL: ${PROTOCOL}
