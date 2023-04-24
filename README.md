@@ -30,3 +30,11 @@ Este repositorio contiene la configuración base del servidor de nginx para los 
     - CUSTOM_DOMAIN_NAME: A ser utilizado en nginx.
     
     Notar que tanto los secretos como variables pueden ser adaptados a ambientes de ser necesario a través de github.
+
+# Añadir un nuevo servidor/servicio
+- Se debe agregar un nuevo archivo que contenga la definición de un nuevo bloque server de nginx. Se deberá modificar el docker-compose.yml solamente si se exponse un nuevo puerto, de lo contrario, no se deberá modificar ningún archivo.
+- Si se desea agregar una nueva variable de entorno, se deberá agregar un nuevo archivo a `nginx/variables`. Este archivo deberá seguir el siguiente formato:
+
+    `<nombre archivo que permita identificar variable>.var.conf.template`
+
+  Esta variable luego deberá ser agregada al workflow
