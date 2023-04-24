@@ -33,7 +33,6 @@ jobs:
             export CUSTOM_DOMAIN_NAME=${{ vars.CUSTOM_DOMAIN_NAME }}
             export LOCATION_PORT=${{ vars.LOCATION_PORT }}
             export PROTOCOL=${{ vars.PROTOCOL }}
-            mkdir -p nginx/servers nginx/certificates nginx/variables
             cd nginx
             docker-compose down
             docker-compose build
