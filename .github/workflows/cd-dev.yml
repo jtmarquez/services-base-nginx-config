@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           target: ./nginx
-          overwrite: true
+          rm: true
           source: "docker-compose.yml,nginx/*, certbot/*"
       -
         name: Execute startup commands and set enviroment variables in EC2
