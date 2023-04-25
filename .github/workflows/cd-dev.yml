@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'dev'
+      - 'feat/https'
 
 jobs:
   deploy:
@@ -31,13 +32,7 @@ jobs:
           key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
             export CUSTOM_DOMAIN_NAME=${{ vars.CUSTOM_DOMAIN_NAME }}
-            export LOCATION_PORT=${{ vars.LOCATION_PORT }}
-            export PROTOCOL=${{ vars.PROTOCOL }}
-            export PORT=${{ vars.PORT }}
-            echo "$CUSTOM_DOMAIN_NAME"
-            echo "$LOCATION_PORT"
-            echo "$PROTOCOL"
+            export DEFAULT_SERVER_NAMES=${{ vars.DEFAULT_SERVER_NAMES }}
             cd nginx
             docker-compose down
             docker-compose build
-            docker-compose up -d
