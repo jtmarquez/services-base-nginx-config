@@ -1,3 +1,3 @@
-map $host $default_server_name {
-  default "services-test.dev";
+map $host $DEFAULT_SERVER_NAMES {
+  default ${DEFAULT_SERVER_NAMES};
 }
