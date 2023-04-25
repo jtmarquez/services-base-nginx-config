@@ -21,8 +21,8 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           target: ./nginx
-          rm: true
-          source: "docker-compose.yml,nginx/*"
+          overwrite: true
+          source: "docker-compose.yml,nginx/*, certbot/*"
       -
         name: Execute startup commands and set enviroment variables in EC2
         uses: appleboy/ssh-action@master
@@ -31,6 +31,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
+            mkdir -p certbot/conf certbot/www
             echo export CUSTOM_DOMAIN_NAME="${{ vars.CUSTOM_DOMAIN_NAME }}" > .env
             echo export DEFAULT_SERVER_NAMES='${{ vars.DEFAULT_SERVER_NAMES }}' >> .env
             source .env
