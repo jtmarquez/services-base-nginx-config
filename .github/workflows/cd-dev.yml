@@ -31,8 +31,8 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            echo export CUSTOM_DOMAIN_NAME=${{ vars.CUSTOM_DOMAIN_NAME }} > .env
-            echo export DEFAULT_SERVER_NAMES=${{ vars.DEFAULT_SERVER_NAMES }} >> .env
+            echo export CUSTOM_DOMAIN_NAME="${{ vars.CUSTOM_DOMAIN_NAME }}" > .env
+            echo export DEFAULT_SERVER_NAMES="${{ vars.DEFAULT_SERVER_NAMES }}" >> .env
             source .env
             cd nginx
             docker-compose down
