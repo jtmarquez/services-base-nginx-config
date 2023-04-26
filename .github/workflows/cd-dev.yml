@@ -66,7 +66,7 @@ jobs:
             ssl_certificate_key /etc/nginx/ssl/live/${{ vars.CERTBOT_DOMAIN_NAME }}/privkey.pem;'
             echo $SSL_CONFIG_TEXT
             echo $SSL_CONFIG_TEXT >> debug.txt
-            sed -i -e 's/${TEXT_TO_REPLACE}/${SSL_CONFIG_TEXT}/g' ./nginx/servers/server.conf
+            sed -i -e "s/${TEXT_TO_REPLACE}/${SSL_CONFIG_TEXT}/g" ./nginx/servers/server.conf
             echo $(cat ./nginx/servers/server.conf)
 
             docker-compose restart nginx-server
