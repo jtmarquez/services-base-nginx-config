@@ -36,6 +36,7 @@ jobs:
             echo export CUSTOM_INTERNAL_IP="${{ vars.CUSTOM_INTERNAL_IP }}" >> .env
             echo export CERTBOT_DOMAIN_NAME="${{ vars.CERTBOT_DOMAIN_NAME }}" >> .env
             source .env
+            cd nginx
 
             docker-compose down
             docker-compose up -d nginx-server
@@ -51,6 +52,6 @@ jobs:
             echo $SSL_CONFIG_TEXT
             echo $(cat ./nginx/nginx/servers/server.conf)
             echo $SSL_CONFIG_TEXT >> debug.txt
-            sed -i -e 's/${TEXT_TO_REPLACE}/${SSL_CONFIG_TEXT}/g' ./nginx/nginx/servers/server.conf
+            sed -i -e 's/${TEXT_TO_REPLACE}/${SSL_CONFIG_TEXT}/g' ./nginx/servers/server.conf
 
             docker-compose restart nginx-server
