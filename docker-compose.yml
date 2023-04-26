@@ -17,9 +17,11 @@ services:
       - ./certbot/www:/var/www/certbot
       - ./certbot/conf/:/etc/nginx/ssl/
     environment:
-      CUSTOM_DOMAIN_NAME: ${CUSTOM_DOMAIN_NAME}
       DEFAULT_SERVER_NAMES: ${DEFAULT_SERVER_NAMES}
+      CUSTOM_INTERNAL_IP: ${CUSTOM_INTERNAL_IP}
+      CERTBOT_DOMAIN_NAME: ${CERTBOT_DOMAIN_NAME}
   certbot:
     image: certbot/certbot:latest
     volumes:
       - ./certbot/www:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
