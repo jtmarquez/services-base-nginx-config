@@ -1,3 +1,0 @@
-map $host $custom_location_port {
-  default "$LOCATION_PORT";
-}

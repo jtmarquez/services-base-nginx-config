@@ -8,11 +8,27 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: dev
     env:
       STAGE: dev
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      -
+        name: Stop existing service container and remove existing configs
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOSTNAME }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            if [ -d "./nginx" ] 
+            then
+                cd nginx
+                docker-compose down
+                cd ..
+                sudo rm -r nginx 
+            fi
       - name: Copy docker-compose and nginx config files via SCP
         uses: appleboy/scp-action@master
         with:
@@ -21,24 +37,52 @@ jobs:
           key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           target: ./nginx
           rm: true
-          source: "docker-compose.yml,nginx/*"
+          source: "docker-compose.yml,nginx/*, certbot/*"
       -
-        name: Execute startup commands and set enviroment variables in EC2
+        name: Set environment variables in EC2,
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOSTNAME }}
           username: ${{ secrets.EC2_USERNAME }}
           key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            export CUSTOM_DOMAIN_NAME=${{ vars.CUSTOM_DOMAIN_NAME }}
-            export DEFAULT_SERVER_NAMES='${{ vars.DEFAULT_SERVER_NAMES }}'
-            export LOCATION_PORT=${{ vars.LOCATION_PORT }}
-            export PROTOCOL=${{ vars.PROTOCOL }}
-            export PORT=${{ vars.PORT }}
-            echo "$CUSTOM_DOMAIN_NAME"
-            echo "$LOCATION_PORT"
-            echo "$PROTOCOL"
+            mkdir -p certbot/conf certbot/www
+            echo export DEFAULT_SERVER_NAMES='${{ vars.DEFAULT_SERVER_NAMES }}' > .env
+            echo export CUSTOM_INTERNAL_IP="${{ vars.CUSTOM_INTERNAL_IP }}" >> .env
+            echo export CERTBOT_DOMAIN_NAME="${{ vars.CERTBOT_DOMAIN_NAME }}" >> .env
+            source .env
+      -
+        name: Start service
+        uses: appleboy/ssh-action@master
+        if: ${{ vars.SETUP_SSL != 'true' }}
+        with:
+          host: ${{ secrets.EC2_HOSTNAME }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
             cd nginx
+            docker-compose restart nginx-server
+      -
+        name: Set up initial SSL.
+        if: ${{ vars.SETUP_SSL == 'true' }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOSTNAME }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            cd nginx
+
             docker-compose down
-            docker-compose build
-            docker-compose up -d
+            docker-compose up -d nginx-server
+            docker-compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ --dry-run -d ${{ vars.CERTBOT_DOMAIN_NAME }} --non-interactive --agree-tos -m ${{ secrets.SSL_CREDENTIAL_EMAIL }}
+
+            docker-compose restart nginx-server
+            docker-compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ -d ${{ vars.CERTBOT_DOMAIN_NAME }} --non-interactive --agree-tos -m ${{ secrets.SSL_CREDENTIAL_EMAIL }}
+
+            TEXT_TO_REPLACE="#insert-here-ssl-contents"
+            SSL_CONFIG_TEXT="listen 443 ssl http2 default_server;\n\    ssl_certificate \/etc\/nginx\/ssl\/live\/${{ vars.CERTBOT_DOMAIN_NAME }}\/fullchain.pem;\n    ssl_certificate_key \/etc\/nginx\/ssl\/live\/${{ vars.CERTBOT_DOMAIN_NAME }}\/privkey.pem;"
+            sed -i -e "s/${TEXT_TO_REPLACE}/${SSL_CONFIG_TEXT}/g" ./nginx/servers/server.conf
+            echo $(cat ./nginx/servers/server.conf)
+
+            docker-compose restart nginx-server

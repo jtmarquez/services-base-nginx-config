@@ -4,7 +4,8 @@ services:
   nginx-server:
     image: nginx:latest
     ports:
-      - "${PORT}:${PORT}"
+      - "80:80"
+      - "443:443"
     network_mode: bridge
     volumes:
       - type: bind
@@ -13,8 +14,14 @@ services:
       - type: bind
         source: ./nginx/servers
         target: /etc/nginx/conf.d/
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf/:/etc/nginx/ssl/
     environment:
-      CUSTOM_DOMAIN_NAME: ${CUSTOM_DOMAIN_NAME}
       DEFAULT_SERVER_NAMES: ${DEFAULT_SERVER_NAMES}
-      LOCATION_PORT: ${LOCATION_PORT}
-      PROTOCOL: ${PROTOCOL}
+      CUSTOM_INTERNAL_IP: ${CUSTOM_INTERNAL_IP}
+      CERTBOT_DOMAIN_NAME: ${CERTBOT_DOMAIN_NAME}
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
