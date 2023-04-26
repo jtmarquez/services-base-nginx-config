@@ -14,27 +14,39 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Copy docker-compose and nginx config files via SCP
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.EC2_HOSTNAME }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
-          target: ./nginx
-          rm: true
-          source: "docker-compose.yml,nginx/*, certbot/*"
+      # - name: Copy docker-compose and nginx config files via SCP
+      #   uses: appleboy/scp-action@master
+      #   with:
+      #     host: ${{ secrets.EC2_HOSTNAME }}
+      #     username: ${{ secrets.EC2_USERNAME }}
+      #     key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+      #     target: ./nginx
+      #     rm: true
+      #     source: "docker-compose.yml,nginx/*, certbot/*"
       -
-        name: Execute startup commands and set enviroment variables in EC2
+        name: Set environment variables in EC2, setup initial SSL and start service.
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOSTNAME }}
           username: ${{ secrets.EC2_USERNAME }}
           key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            mkdir -p certbot/conf certbot/www
-            echo export CUSTOM_DOMAIN_NAME="${{ vars.CUSTOM_DOMAIN_NAME }}" > .env
-            echo export DEFAULT_SERVER_NAMES='${{ vars.DEFAULT_SERVER_NAMES }}' >> .env
-            source .env
-            cd nginx
-            docker-compose down
-            docker-compose build
+            # mkdir -p certbot/conf certbot/www
+            # echo export DEFAULT_SERVER_NAMES='${{ vars.DEFAULT_SERVER_NAMES }}' > .env
+            # echo export CUSTOM_INTERNAL_IP="${{ vars.CUSTOM_INTERNAL_IP }}" >> .env
+            # echo export CERTBOT_DOMAIN_NAME="${{ vars.CERTBOT_DOMAIN_NAME }}" >> .env
+            # source .env
+
+            # docker-compose down
+            # docker-compose up -d nginx-server
+            # docker-compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ --dry-run -d ${{ vars.CERTBOT_DOMAIN_NAME }}
+
+            # docker-compose restart nginx-server
+            # docker-compose run --rm  certbot certonly --webroot --webroot-path /var/www/certbot/ -d ${{ vars.CERTBOT_DOMAIN_NAME }}
+
+            TEXT_TO_REPLACE="#insert-here-ssl-contents"
+            SSL_CONFIG_TEXT="${{ vars.SSL_NGINX_CONF }}"
+            echo $SSL_CONFIG_TEXT
+            # sed -i -e 's/${TEXT_TO_REPLACE}/${SSL_CONFIG_TEXT}/g' nginx/servers/server.conf
+
+            # docker-compose restart nginx-server
