@@ -14,6 +14,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      -
+        name: Stop existing service container and remove existing configs
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOSTNAME }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            cd nginx
+            docker-compose down
+            cd ..
+            sudo rm -r nginx
       - name: Copy docker-compose and nginx config files via SCP
         uses: appleboy/scp-action@master
         with:
