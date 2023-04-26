@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - 'dev'
-      - 'feat/https'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: dev
     env:
       STAGE: dev
     steps:
@@ -39,7 +39,7 @@ jobs:
           rm: true
           source: "docker-compose.yml,nginx/*, certbot/*"
       -
-        name: Set environment variables in EC2, setup initial SSL and start service.
+        name: Set environment variables in EC2,
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOSTNAME }}
@@ -51,6 +51,26 @@ jobs:
             echo export CUSTOM_INTERNAL_IP="${{ vars.CUSTOM_INTERNAL_IP }}" >> .env
             echo export CERTBOT_DOMAIN_NAME="${{ vars.CERTBOT_DOMAIN_NAME }}" >> .env
             source .env
+      -
+        name: Start service
+        uses: appleboy/ssh-action@master
+        if: ${{ vars.SETUP_SSL != 'true' }}
+        with:
+          host: ${{ secrets.EC2_HOSTNAME }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
+            cd nginx
+            docker-compose restart nginx-server
+      -
+        name: Set up initial SSL.
+        if: ${{ vars.SETUP_SSL == 'true' }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOSTNAME }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
+          script: |
             cd nginx
 
             docker-compose down
