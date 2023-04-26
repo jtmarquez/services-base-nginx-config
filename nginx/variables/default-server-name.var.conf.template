@@ -1,0 +1,3 @@
+map $host $default_server_names {
+  default "$DEFAULT_SERVER_NAMES";
+}

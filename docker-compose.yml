@@ -1,0 +1,27 @@
+version: '3'
+name: base-services-config
+services:
+  nginx-server:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    network_mode: bridge
+    volumes:
+      - type: bind
+        source: ./nginx/variables/
+        target: /etc/nginx/templates/
+      - type: bind
+        source: ./nginx/servers
+        target: /etc/nginx/conf.d/
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf/:/etc/nginx/ssl/
+    environment:
+      DEFAULT_SERVER_NAMES: ${DEFAULT_SERVER_NAMES}
+      CUSTOM_INTERNAL_IP: ${CUSTOM_INTERNAL_IP}
+      CERTBOT_DOMAIN_NAME: ${CERTBOT_DOMAIN_NAME}
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
