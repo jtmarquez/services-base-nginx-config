@@ -22,10 +22,13 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key:  ${{ secrets.AWS_EC2_PRIVATE_KEY }}
           script: |
-            cd nginx
-            docker-compose down
-            cd ..
-            sudo rm -r nginx
+            if [ -d "./nginx" ] 
+            then
+                cd nginx
+                docker-compose down
+                cd ..
+                sudo rm -r nginx 
+            fi
       - name: Copy docker-compose and nginx config files via SCP
         uses: appleboy/scp-action@master
         with:
