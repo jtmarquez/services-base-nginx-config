@@ -64,8 +64,8 @@ jobs:
             TEXT_TO_REPLACE_2="#insert-here-ssl-contents-2"
             TEXT_TO_REPLACE_3="#insert-here-ssl-contents-3"
             SSL_CONFIG_TEXT_1="listen 443 ssl http2 default_server;"
-            SSL_CONFIG_TEXT_2="ssl_certificate /etc/nginx/ssl/live/${{ vars.CERTBOT_DOMAIN_NAME }}/fullchain.pem;"
-            SSL_CONFIG_TEXT_3="ssl_certificate_key /etc/nginx/ssl/live/${{ vars.CERTBOT_DOMAIN_NAME }}/privkey.pem;"
+            SSL_CONFIG_TEXT_2="ssl_certificate /etc/nginx/ssl/live/heykiddo.cl/fullchain.pem;"
+            SSL_CONFIG_TEXT_3="ssl_certificate_key /etc/nginx/ssl/live/heykiddo.cl/privkey.pem;"
             sed -i -e "s/${TEXT_TO_REPLACE_1}/${SSL_CONFIG_TEXT_1}/g" ./nginx/servers/server.conf
             sed -i -e "s/${TEXT_TO_REPLACE_2}/${SSL_CONFIG_TEXT_2}/g" ./nginx/servers/server.conf
             sed -i -e "s/${TEXT_TO_REPLACE_3}/${SSL_CONFIG_TEXT_3}/g" ./nginx/servers/server.conf
