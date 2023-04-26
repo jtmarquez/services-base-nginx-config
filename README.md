@@ -5,13 +5,15 @@ Este repositorio contiene la configuración base del servidor de nginx para los 
 - Posterior a esto, se debe instalar docker y docker-compose. Para esto, se debe correr los siguientes comandos:
 
     a. Docker:
+        
+        ```
         Amazon Linux:
-        ```sudo amazon-linux-extras install docker
+        
+        sudo amazon-linux-extras install docker
         sudo service docker start
-        sudo usermod -a -G docker ec2-user```
+        sudo usermod -a -G docker ec2-user
 
         Ubuntu:
-        ```
         sudo apt install apt-transport-https ca-certificates curl software-properties-common
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /        etc/apt/sources.list.d/docker.list > /dev/null
@@ -20,10 +22,12 @@ Este repositorio contiene la configuración base del servidor de nginx para los 
         sudo systemctl status docker
         ```
     b. Docker-compose(Sólo Amazon Linux):
+        
         ```
         sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
         ```
+        
 - En cuanto a los secretos de repositorio/ambiente, se deben crear los siguientes secretos:
     - AWS_EC2_PRIVATE_KEY*
     - EC2_HOSTNAME
